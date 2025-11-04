@@ -1,0 +1,28 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Business logos
+    match /businesses/{businessId}/{allPaths=**} {
+      // Allow authenticated users to upload their own business logo
+      allow read: if true;
+      allow write: if request.auth != null && 
+        exists(/databases/$(database)/documents/businesses/$(businessId)) &&
+        get(/databases/$(database)/documents/businesses/$(businessId)).data.userId == request.auth.uid;
+    }
+    
+    // Deal images
+    match /deals/{businessId}/{allPaths=**} {
+      // Allow authenticated business owners to upload deal images for their business
+      allow read: if true;
+      allow write: if request.auth != null && 
+        exists(/databases/$(database)/documents/businesses/$(businessId)) &&
+        get(/databases/$(database)/documents/businesses/$(businessId)).data.userId == request.auth.uid;
+    }
+    
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
