@@ -294,6 +294,7 @@ export default function BusinessDashboard() {
 
   return (
     <ProtectedRoute requiredRole="business">
+<<<<<<< HEAD
       <div className="container mx-auto px-3 sm:px-4 py-4 max-w-7xl">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
@@ -307,6 +308,21 @@ export default function BusinessDashboard() {
           <Link
             href="/business/deals/new"
             className="btn-primary flex items-center space-x-2 text-xs sm:text-sm px-3 sm:px-4 py-2 w-full sm:w-auto justify-center"
+=======
+      <div className="container mx-auto px-4 py-4 max-w-7xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{business.name}</h1>
+              <Sparkles className="w-5 h-5 text-primary-600 animate-pulse" />
+            </div>
+            <p className="text-gray-600 text-sm">Grow your business with UMBC students</p>
+          </div>
+          <Link
+            href="/business/deals/new"
+            className="btn-primary flex items-center space-x-2 text-sm px-4 py-2"
+>>>>>>> 009a720e21429fddc2ad4207d69615dcb05d1940
           >
             <Plus className="w-4 h-4" />
             <span>Create Deal</span>
@@ -314,7 +330,11 @@ export default function BusinessDashboard() {
         </div>
 
         {/* Growth Tips & Achievements - Compact Side by Side */}
+<<<<<<< HEAD
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-4">
+=======
+        <div className="grid md:grid-cols-2 gap-4 mb-4">
+>>>>>>> 009a720e21429fddc2ad4207d69615dcb05d1940
           {growthTips.length > 0 && (
             <div className="card p-4 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
               <div className="flex items-center gap-2 mb-2">
@@ -354,7 +374,11 @@ export default function BusinessDashboard() {
         </div>
 
         {/* Performance Metrics - Compact Grid */}
+<<<<<<< HEAD
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+=======
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+>>>>>>> 009a720e21429fddc2ad4207d69615dcb05d1940
           <div className="card p-4 bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-primary-600 rounded-lg">
@@ -433,7 +457,11 @@ export default function BusinessDashboard() {
         </div>
 
         {/* Additional Stats - Compact Row */}
+<<<<<<< HEAD
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+=======
+        <div className="grid sm:grid-cols-3 gap-3 mb-4">
+>>>>>>> 009a720e21429fddc2ad4207d69615dcb05d1940
           <div className="card p-3">
             <div className="flex items-center gap-2 mb-1">
               <div className="p-2 bg-primary-100 rounded-lg">
@@ -469,7 +497,11 @@ export default function BusinessDashboard() {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+=======
+        <div className="grid lg:grid-cols-3 gap-4">
+>>>>>>> 009a720e21429fddc2ad4207d69615dcb05d1940
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-4">
             {/* Quick Actions - Compact */}
