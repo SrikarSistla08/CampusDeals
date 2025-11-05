@@ -199,16 +199,56 @@ export default function DashboardPage() {
     
     setTogglingFavorites(prev => new Set(prev).add(dealId))
     try {
-      if (favoriteIds.has(dealId)) {
+      const wasFavorite = favoriteIds.has(dealId)
+      
+      if (wasFavorite) {
+        // Remove from favorites
         await removeFavorite(user.uid, dealId)
         setFavoriteIds(prev => {
           const next = new Set(prev)
           next.delete(dealId)
           return next
         })
+        
+        // Remove from saved deals list
+        setSavedDeals(prev => prev.filter(deal => deal.id !== dealId))
+        
+        // Update saved count
+        setStats(prev => ({
+          ...prev,
+          savedCount: prev.savedCount - 1
+        }))
       } else {
+        // Add to favorites
         await addFavorite(user.uid, dealId)
         setFavoriteIds(prev => new Set(prev).add(dealId))
+        
+        // Find the deal in recentDeals or fetch it
+        let dealToAdd: Deal | null = recentDeals.find(d => d.id === dealId) || null
+        
+        // If not found in recentDeals, fetch it
+        if (!dealToAdd) {
+          try {
+            dealToAdd = await getDealById(dealId)
+          } catch (error) {
+            console.error('Error fetching deal:', error)
+          }
+        }
+        
+        // Add to saved deals list (only if we found the deal and list has space)
+        if (dealToAdd) {
+          setSavedDeals(prev => {
+            // Only keep first 6 deals
+            const newList = [dealToAdd!, ...prev.filter(d => d.id !== dealId)]
+            return newList.slice(0, 6)
+          })
+        }
+        
+        // Update saved count
+        setStats(prev => ({
+          ...prev,
+          savedCount: prev.savedCount + 1
+        }))
       }
     } catch (error) {
       console.error('Error toggling favorite:', error)
@@ -223,31 +263,36 @@ export default function DashboardPage() {
 
   // Countdown timer component
   const CountdownTimer = ({ endDate }: { endDate: Date }) => {
-    const [timeLeft, setTimeLeft] = useState('')
+    // Initialize with calculated value to prevent glitch on reload
+    const calculateTimeLeft = (targetDate: Date) => {
+      const now = new Date()
+      const diff = targetDate.getTime() - now.getTime()
+      
+      if (diff <= 0) {
+        return 'Expired'
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      
+      if (days > 0) {
+        return `${days}d ${hours}h`
+      } else if (hours > 0) {
+        return `${hours}h ${minutes}m`
+      } else {
+        return `${minutes}m`
+      }
+    }
+    
+    const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(endDate))
     
     useEffect(() => {
       const updateTimer = () => {
-        const now = new Date()
-        const diff = endDate.getTime() - now.getTime()
-        
-        if (diff <= 0) {
-          setTimeLeft('Expired')
-          return
-        }
-        
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-        
-        if (days > 0) {
-          setTimeLeft(`${days}d ${hours}h`)
-        } else if (hours > 0) {
-          setTimeLeft(`${hours}h ${minutes}m`)
-        } else {
-          setTimeLeft(`${minutes}m`)
-        }
+        setTimeLeft(calculateTimeLeft(endDate))
       }
       
+      // Update immediately and then every minute
       updateTimer()
       const interval = setInterval(updateTimer, 60000) // Update every minute
       
@@ -482,14 +527,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 items-start">
           {/* Recent Deals */}
           <div className={`card overflow-hidden ${!expandedSections.latestDeals ? 'pb-0' : ''} self-start`}>
-            <div className={`flex items-center justify-between p-6 ${expandedSections.latestDeals ? 'border-b border-gray-100' : ''}`}>
-              <div className="flex items-center gap-4">
+            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 p-4 sm:p-6 ${expandedSections.latestDeals ? 'border-b border-gray-100' : ''}`}>
+              <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <button
                   onClick={() => toggleSection('latestDeals')}
-                  className="p-2 hover:bg-primary-50 rounded-lg transition-colors"
+                  className="p-2 hover:bg-primary-50 rounded-lg transition-colors flex-shrink-0"
                   aria-label={expandedSections.latestDeals ? 'Collapse latest deals' : 'Expand latest deals'}
                 >
                   {expandedSections.latestDeals ? (
@@ -498,16 +543,16 @@ export default function DashboardPage() {
                     <ChevronDown className="w-5 h-5 text-primary-600" />
                   )}
                 </button>
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Sparkles className="w-6 h-6 mr-2 text-primary-600" />
-                Latest Deals
-              </h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-primary-600" />
+                  Latest Deals
+                </h2>
               </div>
               <Link
                 href="/deals"
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 transition-colors"
+                className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 transition-colors ml-auto sm:ml-0"
               >
-                View all <ArrowRight className="w-4 h-4" />
+                View all <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </Link>
             </div>
             <div 
@@ -619,21 +664,11 @@ export default function DashboardPage() {
 
           {/* Saved Deals */}
           <div className={`card overflow-hidden ${!expandedSections.savedDeals ? 'pb-0' : ''} self-start`}>
-            <div className={`flex items-center justify-between p-6 ${expandedSections.savedDeals ? 'border-b border-gray-100' : ''}`}>
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Heart className="w-6 h-6 mr-2 text-red-500" />
-                Your Saved Deals
-              </h2>
-              <div className="flex items-center gap-3">
-              <Link
-                href="/profile"
-                  className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1 transition-colors"
-              >
-                View all <ArrowRight className="w-4 h-4" />
-              </Link>
+            <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 p-4 sm:p-6 ${expandedSections.savedDeals ? 'border-b border-gray-100' : ''}`}>
+              <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <button
                   onClick={() => toggleSection('savedDeals')}
-                  className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                   aria-label={expandedSections.savedDeals ? 'Collapse saved deals' : 'Expand saved deals'}
                 >
                   {expandedSections.savedDeals ? (
@@ -642,7 +677,17 @@ export default function DashboardPage() {
                     <ChevronDown className="w-5 h-5 text-red-600" />
                   )}
                 </button>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                  <Heart className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-red-500" />
+                  Your Saved Deals
+                </h2>
               </div>
+              <Link
+                href="/profile"
+                className="text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1 transition-colors ml-auto sm:ml-0"
+              >
+                View all <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+              </Link>
             </div>
             <div 
               className={`overflow-hidden transition-all duration-300 ease-in-out ${

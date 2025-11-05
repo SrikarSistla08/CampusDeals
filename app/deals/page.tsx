@@ -87,16 +87,16 @@ export default function DealsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-3">Discover Deals</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-12">
+        <div className="mb-6 sm:mb-8 lg:mb-10 text-center">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-2 sm:mb-3">Discover Deals</h1>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2">
             Exclusive discounts from local Arbutus businesses
           </p>
         </div>
 
       {/* Search Bar */}
-      <div className="mb-8 max-w-2xl mx-auto">
+      <div className="mb-6 sm:mb-8 max-w-2xl mx-auto">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
@@ -110,20 +110,20 @@ export default function DealsPage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-10 space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <div className="mb-6 sm:mb-8 lg:mb-10 space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700">
             <Filter className="w-4 h-4 text-primary-600" />
             <span>Filter by category:</span>
           </div>
           
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort-select" className="text-sm font-medium text-gray-700">Sort by:</label>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <label htmlFor="sort-select" className="text-xs sm:text-sm font-medium text-gray-700">Sort by:</label>
             <select
               id="sort-select"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'popular' | 'ending')}
-              className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-900 cursor-pointer"
+              className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-xs sm:text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-900 cursor-pointer"
               aria-label="Sort deals by"
             >
               {sortOptions.map((option) => (
@@ -135,12 +135,12 @@ export default function DealsPage() {
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-2.5">
+        <div className="flex flex-wrap gap-2 sm:gap-2.5">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`px-5 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+              className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 text-xs sm:text-sm rounded-lg font-medium transition-all duration-200 ${
                 selectedCategory === category.id
                   ? 'bg-primary-600 text-white shadow-md'
                   : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200 hover:border-primary-300'
@@ -166,7 +166,7 @@ export default function DealsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {deals.map((deal) => (
             <Link
               key={deal.id}

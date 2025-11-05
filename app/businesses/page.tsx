@@ -51,42 +51,42 @@ export default function BusinessesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-10">
-          <div className="text-center mb-6">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-3">Local Businesses</h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-12">
+        <div className="mb-6 sm:mb-8 lg:mb-10">
+          <div className="text-center mb-4 sm:mb-6">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-2 sm:mb-3">Local Businesses</h1>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               Discover businesses in Arbutus supporting UMBC students
             </p>
           </div>
           
           {/* View Toggle */}
-          <div className="flex justify-center mb-6">
-            <div className="inline-flex bg-white rounded-lg p-1 shadow-md border border-gray-200">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <div className="inline-flex bg-white rounded-lg p-1 shadow-md border border-gray-200 w-full sm:w-auto max-w-xs sm:max-w-none">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-6 py-2 rounded-md font-medium transition-all ${
+                className={`flex-1 sm:flex-initial px-4 sm:px-6 py-2 text-xs sm:text-sm rounded-md font-medium transition-all ${
                   viewMode === 'grid'
                     ? 'bg-primary-600 text-white shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  <span>List View</span>
+                  <span>List</span>
                 </div>
               </button>
               <button
                 onClick={() => setViewMode('map')}
-                className={`px-6 py-2 rounded-md font-medium transition-all ${
+                className={`flex-1 sm:flex-initial px-4 sm:px-6 py-2 text-xs sm:text-sm rounded-md font-medium transition-all ${
                   viewMode === 'map'
                     ? 'bg-primary-600 text-white shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <Map className="w-4 h-4" />
-                  <span>Map View</span>
+                  <span>Map</span>
                 </div>
               </button>
             </div>
@@ -106,7 +106,7 @@ export default function BusinessesPage() {
           </Link>
         </div>
       ) : viewMode === 'map' ? (
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Map Section */}
           <div className="lg:col-span-2">
             <div className="card p-0 overflow-hidden">
@@ -173,7 +173,7 @@ export default function BusinessesPage() {
           </div>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {businesses.map((business) => (
             <div 
               key={business.id} 
