@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react'
 import { getAllBusinesses } from '@/lib/firebase/businesses'
 import { Business } from '@/types'
 import Link from 'next/link'
-import { MapPin, Phone, Star, ExternalLink } from 'lucide-react'
+import { MapPin, Phone, Star, ExternalLink, Navigation, Map } from 'lucide-react'
+import BusinessMap from '@/components/businesses/BusinessMap'
 
 export default function BusinessesPage() {
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
 
   useEffect(() => {
     loadBusinesses()
@@ -30,14 +33,64 @@ export default function BusinessesPage() {
     }
   }
 
+  // Generate Google Maps embed URL with markers
+  const generateMapUrl = () => {
+    if (businesses.length === 0) return ''
+    
+    // Center on Arbutus, MD
+    const center = 'Arbutus,MD'
+    const markers = businesses.map(b => encodeURIComponent(`${b.address}, Arbutus, MD`)).join('|')
+    
+    return `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}&q=${center}&zoom=13`
+  }
+
+  // Generate Google Maps search URL for a business
+  const getGoogleMapsUrl = (business: Business) => {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${business.address}, Arbutus, MD`)}`
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-3">Local Businesses</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover businesses in Arbutus supporting UMBC students
-          </p>
+        <div className="mb-10">
+          <div className="text-center mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-3">Local Businesses</h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Discover businesses in Arbutus supporting UMBC students
+            </p>
+          </div>
+          
+          {/* View Toggle */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex bg-white rounded-lg p-1 shadow-md border border-gray-200">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-6 py-2 rounded-md font-medium transition-all ${
+                  viewMode === 'grid'
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>List View</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`px-6 py-2 rounded-md font-medium transition-all ${
+                  viewMode === 'map'
+                    ? 'bg-primary-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Map className="w-4 h-4" />
+                  <span>Map View</span>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
 
       {loading ? (
@@ -52,10 +105,83 @@ export default function BusinessesPage() {
             Add Demo Data
           </Link>
         </div>
+      ) : viewMode === 'map' ? (
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Map Section */}
+          <div className="lg:col-span-2">
+            <div className="card p-0 overflow-hidden">
+              <BusinessMap
+                businesses={businesses}
+                selectedBusinessId={selectedBusiness || undefined}
+                onBusinessSelect={setSelectedBusiness}
+              />
+            </div>
+          </div>
+
+          {/* Business List Sidebar */}
+          <div className="space-y-4">
+            <div className="card p-4 bg-primary-50 border-2 border-primary-200">
+              <h3 className="font-bold text-gray-900 mb-1">📍 Arbutus, MD</h3>
+              <p className="text-sm text-gray-600">
+                {businesses.length} {businesses.length === 1 ? 'business' : 'businesses'} found
+              </p>
+            </div>
+            
+            <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              {businesses.map((business) => (
+                <div
+                  key={business.id}
+                  onClick={() => setSelectedBusiness(business.id)}
+                  className={`card p-4 cursor-pointer transition-all ${
+                    selectedBusiness === business.id
+                      ? 'ring-2 ring-primary-500 bg-primary-50'
+                      : 'hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-bold text-gray-900 text-sm">{business.name}</h4>
+                    {business.rating > 0 && (
+                      <div className="flex items-center text-yellow-500">
+                        <Star className="w-3 h-3 fill-current" />
+                        <span className="ml-1 text-xs font-semibold">{business.rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-600 mb-2 line-clamp-1">{business.address}</p>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={getGoogleMapsUrl(business)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                    >
+                      <Navigation className="w-3 h-3" />
+                      Directions
+                    </a>
+                    <Link
+                      href={`/businesses/${business.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-primary-600 hover:text-primary-700 font-medium ml-auto"
+                    >
+                      View Deals →
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {businesses.map((business) => (
-            <div key={business.id} className="card card-hover">
+            <div 
+              key={business.id} 
+              className={`card card-hover transition-all ${
+                selectedBusiness === business.id ? 'ring-2 ring-primary-500' : ''
+              }`}
+              onClick={() => setSelectedBusiness(business.id)}
+            >
               {business.logo && (
                 <div className="h-56 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                   <img
@@ -85,11 +211,22 @@ export default function BusinessesPage() {
                     <Phone className="w-4 h-4 mr-2 flex-shrink-0 text-primary-600" />
                     <span>{business.phone}</span>
                   </div>
+                  <a
+                    href={getGoogleMapsUrl(business)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    <Navigation className="w-4 h-4 mr-2" />
+                    Get Directions
+                  </a>
                   {business.website && (
                     <a
                       href={business.website}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="flex items-center text-sm text-primary-600 hover:text-primary-700 font-medium"
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
@@ -99,6 +236,7 @@ export default function BusinessesPage() {
                 </div>
                 <Link
                   href={`/businesses/${business.id}`}
+                  onClick={(e) => e.stopPropagation()}
                   className="block w-full text-center btn-primary text-sm py-2.5"
                 >
                   View Deals
