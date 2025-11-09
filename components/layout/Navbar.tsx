@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { logout } from '@/lib/firebase/auth'
 import { useRouter } from 'next/navigation'
-import { ShoppingBag, User, LogOut, Settings } from 'lucide-react'
+import { User, LogOut, Settings } from 'lucide-react'
 
 export function Navbar() {
   const { user, userData, loading } = useAuth()
@@ -24,8 +25,14 @@ export function Navbar() {
                 user && userData?.role === 'business' ? "/business/dashboard" : 
                 "/"
               } className="flex items-center space-x-2 group">
-                <div className="p-1.5 bg-primary-600 rounded-lg group-hover:bg-primary-700 transition-colors">
-                  <ShoppingBag className="w-5 h-5 text-white" />
+                <div className="relative h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                  <Image
+                    src="/logo.svg"
+                    alt="CampusDeals Logo"
+                    fill
+                    className="object-contain group-hover:scale-105 transition-transform duration-200"
+                    priority
+                  />
                 </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                   CampusDeals
